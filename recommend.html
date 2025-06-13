@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>무비픽 - 영화 추천</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: #f4f4f4;
+        }
+
+        header {
+            background: #222;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            background: #333;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0.75rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            padding: 2rem;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .form-group label {
+            min-width: 100px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group select {
+            flex: 1;
+            padding: 0.6rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group input[type="checkbox"],
+        .form-group input[type="radio"] {
+            margin-right: 0.3rem;
+        }
+
+        .form-inline {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .platforms {
+            display: flex;
+            gap: 1.2rem;
+        }
+
+        .recommend-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .recommend-btn:hover {
+            background: #444;
+        }
+
+        .results {
+            margin-top: 2.5rem;
+        }
+
+        .movie-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .movie-card {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 180px;
+            padding: 0.7rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .movie-card img {
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .movie-card h4 {
+            margin: 0.5rem 0 0 0;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>🎲 무비픽 - 영화 추천</h1>
+    </header>
+    <nav>
+        <a href="index.html">메인페이지</a>
+        <a href="search.html">영화검색</a>
+        <a href="recommend.html">영화추천</a>
+    </nav>
+    <main>
+        <h2>영화 추천받기</h2>
+        <form id="recommendForm" autocomplete="off">
+            <div class="form-group">
+                <label for="genre">장르</label>
+                <select id="genre" name="genre">
+                    <option value="">선택 안 함</option>
+                    <option>액션</option>
+                    <option>로맨스</option>
+                    <option>코미디</option>
+                    <option>드라마</option>
+                    <option>스릴러</option>
+                    <option>SF</option>
+                    <option>애니메이션</option>
+                    <!-- 필요시 추가 -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="mood">기분/분위기</label>
+                <select id="mood" name="mood">
+                    <option value="">선택 안 함</option>
+                    <option>감성적인</option>
+                    <option>유쾌한</option>
+                    <option>몰입감 있는</option>
+                    <option>슬픈</option>
+                    <option>무서운</option>
+                    <option>힐링되는</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>관람 시간</label>
+                <div class="form-inline">
+                    <label><input type="radio" name="runtime" value="short" /> 90분 이하</label>
+                    <label><input type="radio" name="runtime" value="medium" /> 90~120분</label>
+                    <label><input type="radio" name="runtime" value="long" /> 120분 이상</label>
+                    <label><input type="radio" name="runtime" value="" checked /> 상관없음</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="year">연도/시대</label>
+                <select id="year" name="year">
+                    <option value="">상관없음</option>
+                    <option value="latest">최신 영화</option>
+                    <option value="90s">90년대 영화</option>
+                    <option value="classic">고전 명작</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="country">언어/국가</label>
+                <select id="country" name="country">
+                    <option value="">상관없음</option>
+                    <option value="KR">한국 영화</option>
+                    <option value="US">미국 영화</option>
+                    <option value="JP">일본 영화</option>
+                    <option value="FR">프랑스 영화</option>
+                    <option value="GB">영국 영화</option>
+                    <option value="DE">독일 영화</option>
+                    <option value="IT">이탈리아 영화</option>
+                    <option value="ES">스페인 영화</option>
+                    <!-- 필요시 추가 -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label>관람 대상</label>
+                <div class="form-inline">
+                    <label><input type="checkbox" name="audience" value="혼자" /> 혼자</label>
+                    <label><input type="checkbox" name="audience" value="연인" /> 연인</label>
+                    <label><input type="checkbox" name="audience" value="가족" /> 가족</label>
+                    <label><input type="checkbox" name="audience" value="친구" /> 친구</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>시청 플랫폼</label>
+                <div class="platforms">
+                    <label><input type="checkbox" name="platform" value="넷플릭스" /> 넷플릭스</label>
+                    <label><input type="checkbox" name="platform" value="디즈니+" /> 디즈니+</label>
+                    <label><input type="checkbox" name="platform" value="왓챠" /> 왓챠</label>
+                    <label><input type="checkbox" name="platform" value="쿠팡플레이" /> 쿠팡플레이</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="recent">최근 본/좋아하는 영화</label>
+                <input type="text" id="recent" name="recent" placeholder="최근 감상/좋아한 영화명 (선택)" />
+            </div>
+            <button type="submit" class="recommend-btn">추천받기</button>
+        </form>
+        <div class="results" id="results">
+            <!-- 추천 결과 영화리스트가 여기에 출력됩니다 -->
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 무비픽 MoviePick</p>
+    </footer>
+    <script>
+        // 추후 JS로 추천 결과 출력 및 API 연동
+        document.getElementById('recommendForm').onsubmit = function (e) {
+            e.preventDefault();
+            document.getElementById('results').innerHTML =
+                '<div style="color:#888; padding:2rem; text-align:center;">영화 추천 결과가 여기에 표시됩니다.<br> (API 연동 및 추천 로직 구현 예정)</div>';
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>무비픽 - 영화 검색</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #222;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    nav {
+      background: #333;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.75rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      padding: 2rem;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .search-bar input[type="text"] {
+      flex: 1;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .search-bar button {
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .search-bar button:hover {
+      background: #444;
+    }
+
+    .filter-panel {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .filter-group label {
+      min-width: 60px;
+    }
+
+    .results {
+      margin-top: 2rem;
+    }
+
+    .movie-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .movie-card {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      width: 180px;
+      padding: 0.7rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+      text-align: center;
+    }
+
+    .movie-card img {
+      width: 100%;
+      border-radius: 4px;
+    }
+
+    .movie-card h4 {
+      margin: 0.5rem 0 0 0;
+      font-size: 1rem;
+    }
+
+    .movie-info {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #f6f6f6;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🔍 무비픽 - 영화 검색</h1>
+  </header>
+  <nav>
+    <a href="index.html">메인페이지</a>
+    <a href="search.html">영화검색</a>
+    <a href="recommend.html">영화추천</a>
+  </nav>
+  <main>
+    <form class="search-bar" id="searchForm" autocomplete="off">
+      <input type="text" id="searchInput" placeholder="영화 제목, 감독, 배우, 장르, 국가 등으로 검색" />
+      <button type="submit">검색</button>
+      <button type="button" id="filterToggle">상세검색설정</button>
+    </form>
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-group">
+        <label for="genreSelect">장르</label>
+        <select id="genreSelect">
+          <option value="">전체</option>
+          <!-- 장르 옵션 JS로 동적 생성 -->
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="countrySelect">국가</label>
+        <select id="countrySelect">
+          <option value="">전체</option>
+          <!-- 국가 옵션 JS로 동적 생성 -->
+        </select>
+      </div>
+      <!-- 필요시 추가 필터 -->
+    </div>
+    <div class="results" id="results">
+      <!-- 검색 결과(영화 리스트 또는 영화 정보)가 여기에 출력 -->
+    </div>
+  </main>
+  <footer>
+    <p>&copy; 2025 무비픽 MoviePick</p>
+  </footer>
+  <script>
+    // 상세검색설정 패널 토글
+    document.getElementById('filterToggle').onclick = function () {
+      const panel = document.getElementById('filterPanel');
+      panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+    };
+
+    // 장르/국가 옵션은 TMDB API로 받아와서 동적으로 채울 수 있습니다.
+    // 검색 및 결과 출력, 상세정보/연관영화 등은 추후 JS로 구현
+  </script>
+</body>
+
+</html>
