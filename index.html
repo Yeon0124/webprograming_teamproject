@@ -1,245 +1,264 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>무비픽 - 영화 추천</title>
-  <style>
-    html, body {
-      height: 100%; margin: 0; padding: 0;
-      font-family: 'Arial', sans-serif;
-      display: flex; flex-direction: column;
-      background-color: #f4f4f4;
-    }
-    .wrapper {
-      min-height: 100vh; display: flex; flex-direction: column;
-    }
-    header {
-      background: #222; color: white; padding: 1rem; text-align: center;
-    }
-    header h1 {
-      margin: 0; font-size: 1.8rem;
-    }
-    nav {
-      background: #333; display: flex; justify-content: center; gap: 2rem; padding: 0.75rem;
-    }
-    nav a {
-      color: white; text-decoration: none; font-weight: bold;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    main {
-      flex: 1; padding: 2rem;
-    }
-    .category-section {
-      margin-bottom: 3rem;
-    }
-    .category-title {
-      font-size: 1.3rem;
-      margin-bottom: 1rem;
-    }
-    .movie-row {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      padding-bottom: 1rem;
-    }
-    .movie {
-      background: white; border: 1px solid #ccc; border-radius: 8px;
-      padding: 0.5rem; width: 180px; min-width: 180px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-      cursor: pointer; /* 커서 클릭 가능 여부 표시 */
-    }
-    .movie img { width: 100%; height: auto; border-radius: 4px; }
-    .movie h4 {
-      font-size: 1rem; margin: 0.5rem 0 0 0;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    footer {
-      background-color: #222; color: white; text-align: center; padding: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>무비픽 - 영화 추천</title>
+    <style>
+        html, body {
+            height: 100%; margin: 0; padding: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex; flex-direction: column;
+            background-color: #f4f4f4;
+        }
+        .wrapper {
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        header {
+            background: #222; color: white; padding: 1rem; text-align: center;
+        }
+        header h1 {
+            margin: 0; font-size: 1.8rem;
+        }
+        nav {
+            background: #333; display: flex; justify-content: center; gap: 2rem; padding: 0.75rem;
+        }
+        nav a {
+            color: white; text-decoration: none; font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            flex: 1; padding: 2rem;
+        }
+        .category-section {
+            margin-bottom: 3rem;
+        }
+        .category-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .movie-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 1rem;
+        }
+        .movie {
+            background: white; border: 1px solid #ccc; border-radius: 8px;
+            padding: 0.5rem; width: 180px; min-width: 180px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .movie img { width: 100%; height: auto; border-radius: 4px; }
+        .movie h4 {
+            font-size: 1rem; margin: 0.5rem 0 0 0;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        footer {
+            background-color: #222; color: white; text-align: center; padding: 1rem;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrapper">
-    <header>
-      <h1>🎬 무비픽 - 나만의 영화 추천</h1>
-    </header>
-    <nav>
-      <a href="index.html">메인페이지</a>
-      <a href="search.html">영화검색</a>
-      <a href="recommend.html">영화추천</a>
-    </nav>
-    <main>
-      <div id="movieSections"></div>
-    </main>
-    <footer><p>&copy; 2025 무비픽 MoviePick</p></footer>
-  </div>
-  <script>
-    const API_KEY = 'ae78ea0d67caa2167d072d71ea1a8990';
+    <div class="wrapper">
+        <header>
+            <h1>🎬 무비픽 - 나만의 영화 추천</h1>
+        </header>
+        <nav>
+            <a href="index.html">메인페이지</a>
+            <a href="search.html">영화검색</a>
+            <a href="recommend.html">영화추천</a>
+        </nav>
+        <main>
+            <div id="movieSections"></div>
+        </main>
+        <footer>
+            <p>&copy; 2025 무비픽 MoviePick</p>
+        </footer>
+    </div>
+    <script>
+        const API_KEY = 'ae78ea0d67caa2167d072d71ea1a8990';
 
-    function getRandomItems(arr, count) {
-      return arr.sort(() => 0.5 - Math.random()).slice(0, count);
-    }
-
-    // 인기 영화 여러 페이지에서 감독을 많이 모으고, 그 중 랜덤 추출
-    async function fetchPopularDirectors(desiredCount = 1, pageCount = 5) {
-      const directorSet = new Set();
-      try {
-        for (let page = 1; page <= pageCount; page++) {
-          const movieRes = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=ko-KR&page=${page}`);
-          const movieData = await movieRes.json();
-          const movies = movieData.results || [];
-          const creditsPromises = movies.map(movie =>
-            fetch(`https://api.themoviedb.org/3/movie/${movie.id}/credits?api_key=${API_KEY}&language=ko-KR`)
-              .then(res => res.json())
-              .then(credits => {
-                const director = credits.crew?.find(c => c.job === "Director");
-                if (director) directorSet.add(director.name);
-              })
-              .catch(() => {})
-          );
-          await Promise.all(creditsPromises);
+        function getRandomItems(arr, count) {
+            return arr.sort(() => 0.5 - Math.random()).slice(0, count);
         }
-      } catch (e) {}
-      const directorArr = Array.from(directorSet);
-      return getRandomItems(directorArr, desiredCount);
-    }
 
-    // TMDB 인기 인물(배우) 조회
-    async function fetchPopularActors(count = 1) {
-      const res = await fetch(`https://api.themoviedb.org/3/person/popular?api_key=${API_KEY}&language=ko-KR&page=1`);
-      const data = await res.json();
-      const actors = (data.results || []).filter(p => p.known_for_department === 'Acting').map(p => p.name);
-      return getRandomItems(actors, count);
-    }
-
-    // TMDB 장르 리스트 조회
-    async function fetchGenres(count = 1) {
-      const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=ko-KR`);
-      const data = await res.json();
-      const genres = data.genres || [];
-      return getRandomItems(genres, count);
-    }
-
-    // 중복 영화 방지용 전역 Set
-    const globalMovieIdSet = new Set();
-
-    // 영화 리스트 렌더링 (중복 제거)
-    function renderMovies(sectionId, movies) {
-      // 영화 id 기준으로 중복 제거 (전역적으로)
-      const uniqueMovies = [];
-      for (const movie of movies) {
-        const id = movie.id;
-        if (!globalMovieIdSet.has(id)) {
-          uniqueMovies.push(movie);
-          globalMovieIdSet.add(id);
+        // 인기 영화 여러 페이지에서 감독을 많이 모으고, 그 중 랜덤 추출
+        async function fetchPopularDirectors(desiredCount = 1, pageCount = 5) {
+            const directorSet = new Set();
+            try {
+                for (let page = 1; page <= pageCount; page++) {
+                    const movieRes = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=ko-KR&page=${page}`);
+                    const movieData = await movieRes.json();
+                    const movies = movieData.results || [];
+                    const creditsPromises = movies.map(movie =>
+                        fetch(`https://api.themoviedb.org/3/movie/${movie.id}/credits?api_key=${API_KEY}&language=ko-KR`)
+                            .then(res => res.json())
+                            .then(credits => {
+                                const director = credits.crew?.find(c => c.job === "Director");
+                                if (director) directorSet.add(director.name);
+                            })
+                            .catch(() => {})
+                    );
+                    await Promise.all(creditsPromises);
+                }
+            } catch (e) {}
+            const directorArr = Array.from(directorSet);
+            return getRandomItems(directorArr, desiredCount);
         }
-        if (uniqueMovies.length >= 10) break; // 최대 10개만 표시
-      }
 
-      const row = document.createElement('div');
-      row.className = 'movie-row';
-      if (!uniqueMovies.length) {
-        row.innerHTML = '<div style="color:#888; padding:1rem;">추천 영화를 찾을 수 없습니다.</div>';
-      } else {
-        uniqueMovies.forEach(movie => {
-          const poster = movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : 'https://via.placeholder.com/180x270?text=No+Image';
-          const title = movie.title || movie.name || '제목 없음';
-          // 영화 클릭 시 상세 페이지로 이동하는 링크 추가
-          row.innerHTML += `
-            <div class="movie" onclick="goToDetailPage(${movie.id})">
-              <img src="${poster}" alt="포스터" />
-              <h4 title="${title}">${title.length > 16 ? title.slice(0, 16) + '…' : title}</h4>
-            </div>
-          `;
-        });
-      }
-      document.getElementById(sectionId).appendChild(row);
-    }
+        // TMDB 인기 인물(배우) 조회
+        async function fetchPopularActors(count = 1) {
+            const res = await fetch(`https://api.themoviedb.org/3/person/popular?api_key=${API_KEY}&language=ko-KR&page=1`);
+            const data = await res.json();
+            const actors = (data.results || []).filter(p => p.known_for_department === 'Acting').map(p => p.name);
+            return getRandomItems(actors, count);
+        }
 
-    // 영화 상세 페이지로 이동하는 함수
-    function goToDetailPage(movieId) {
-      window.location.href = `movie_detail.html?id=${movieId}`;
-    }
+        // TMDB 장르 리스트 전체 받아오기
+        async function fetchAllGenres() {
+            const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=ko-KR`);
+            const data = await res.json();
+            return data.genres || [];
+        }
 
-    // 영화 데이터 받아오기
-    function fetchMovies(type, value, callback, genreIdMap = {}) {
-      if (type === 'director') {
-        fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodeURIComponent(value)}&language=ko-KR`)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.results || data.results.length === 0) throw new Error('인물 없음');
-            const id = data.results[0].id;
-            return fetch(`https://api.themoviedb.org/3/person/${id}/movie_credits?api_key=${API_KEY}&language=ko-KR`);
-          })
-          .then(res => res.json())
-          .then(data => callback(data.crew?.filter(c => c.job === "Director" || c.job === "Writer").concat(data.cast || []).slice(0, 20) || []))
-          .catch(() => callback([]));
-      } else if (type === 'actor') {
-        fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodeURIComponent(value)}&language=ko-KR`)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.results || data.results.length === 0) throw new Error('인물 없음');
-            const id = data.results[0].id;
-            return fetch(`https://api.themoviedb.org/3/person/${id}/movie_credits?api_key=${API_KEY}&language=ko-KR`);
-          })
-          .then(res => res.json())
-          .then(data => callback(data.cast?.slice(0, 20) || []))
-          .catch(() => callback([]));
-      } else if (type === 'genre') {
-        const genreId = genreIdMap[value];
-        if (!genreId) return callback([]);
-        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&language=ko-KR&sort_by=popularity.desc`)
-          .then(res => res.json())
-          .then(data => callback(data.results.slice(0, 20)))
-          .catch(() => callback([]));
-      } else {
-        callback([]);
-      }
-    }
+        // 실제로 영화가 있는 장르만 랜덤 선택
+        async function getValidGenre(genres) {
+            const shuffled = getRandomItems(genres, genres.length);
+            for (const genre of shuffled) {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genre.id}&language=ko-KR&sort_by=popularity.desc`);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    return genre;
+                }
+            }
+            return null;
+        }
 
-    // 메인 실행 함수
-    async function setupTopicsAndRender() {
-      globalMovieIdSet.clear(); // 새로고침 시 중복 방지 Set 초기화
-      const container = document.getElementById('movieSections');
-      container.innerHTML = '';
+        // 중복 영화 방지용 전역 Set
+        const globalMovieIdSet = new Set();
 
-      // 각 카테고리별로 1개씩 추천
-      const [directors, actors, genres] = await Promise.all([
-        fetchPopularDirectors(1, 5),
-        fetchPopularActors(1),
-        fetchGenres(1)
-      ]);
+        // 영화 리스트 렌더링 (중복 제거, 카드 클릭시 상세페이지 이동)
+        function renderMovies(sectionId, movies) {
+            const uniqueMovies = [];
+            for (const movie of movies) {
+                const id = movie.id;
+                if (!globalMovieIdSet.has(id)) {
+                    uniqueMovies.push(movie);
+                    globalMovieIdSet.add(id);
+                }
+                if (uniqueMovies.length >= 10) break; // 최대 10개만 표시
+            }
 
-      // 장르 이름과 ID 매핑
-      const genreIdMap = {};
-      (await fetchGenres(10)).forEach(g => { genreIdMap[g.name] = g.id; });
+            const row = document.createElement('div');
+            row.className = 'movie-row';
+            if (!uniqueMovies.length) {
+                row.innerHTML = '<div style="color:#888; padding:1rem;">추천 영화를 찾을 수 없습니다.</div>';
+            } else {
+                uniqueMovies.forEach(movie => {
+                    const poster = movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : 'https://via.placeholder.com/180x270?text=No+Image';
+                    const title = movie.title || movie.name || '제목 없음';
+                    const div = document.createElement('div');
+                    div.className = 'movie';
+                    div.innerHTML = `
+                        <img src="${poster}" alt="포스터" />
+                        <h4 title="${title}">${title.length > 16 ? title.slice(0, 16) + '…' : title}</h4>
+                    `;
+                    // 상세페이지 이동
+                    div.addEventListener('click', function() {
+                        window.location.href = `movie.html?id=${movie.id}`;
+                    });
+                    row.appendChild(div);
+                });
+            }
+            document.getElementById(sectionId).appendChild(row);
+        }
 
-      // 토픽 리스트 생성
-      const topicList = [
-        ...directors.map(name => ({ type: 'director', value: name, title: `🎬 ${name} 감독 추천작` })),
-        ...actors.map(name => ({ type: 'actor', value: name, title: `🎭 ${name} 출연작` })),
-        ...genres.map(g => ({ type: 'genre', value: g.name, title: `🎞 ${g.name} 장르 추천` })),
-      ];
+        // 영화 데이터 받아오기
+        function fetchMovies(type, value, callback, genreIdMap = {}) {
+            if (type === 'director') {
+                fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodeURIComponent(value)}&language=ko-KR`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.results || data.results.length === 0) throw new Error('인물 없음');
+                        const id = data.results[0].id;
+                        return fetch(`https://api.themoviedb.org/3/person/${id}/movie_credits?api_key=${API_KEY}&language=ko-KR`);
+                    })
+                    .then(res => res.json())
+                    .then(data => callback(data.crew?.filter(c => c.job === "Director" || c.job === "Writer").concat(data.cast || []).slice(0, 20) || []))
+                    .catch(() => callback([]));
+            } else if (type === 'actor') {
+                fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodeURIComponent(value)}&language=ko-KR`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.results || data.results.length === 0) throw new Error('인물 없음');
+                        const id = data.results[0].id;
+                        return fetch(`https://api.themoviedb.org/3/person/${id}/movie_credits?api_key=${API_KEY}&language=ko-KR`);
+                    })
+                    .then(res => res.json())
+                    .then(data => callback(data.cast?.slice(0, 20) || []))
+                    .catch(() => callback([]));
+            } else if (type === 'genre') {
+                const genreId = genreIdMap[value];
+                if (!genreId) return callback([]);
+                fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&language=ko-KR&sort_by=popularity.desc`)
+                    .then(res => res.json())
+                    .then(data => callback(data.results.slice(0, 20)))
+                    .catch(() => callback([]));
+            } else {
+                callback([]);
+            }
+        }
 
-      // 각 토픽별 영화 섹션 생성 및 데이터 로딩
-      topicList.forEach((topic, index) => {
-        const sectionId = `section-${index}`;
-        const section = document.createElement('section');
-        section.className = 'category-section';
-        section.id = sectionId;
-        section.innerHTML = `<h3 class="category-title">${topic.title}</h3>`;
-        container.appendChild(section);
-        fetchMovies(topic.type, topic.value, movies => renderMovies(sectionId, movies), genreIdMap);
-      });
-    }
+        // 메인 실행 함수
+        async function setupTopicsAndRender() {
+            globalMovieIdSet.clear();
+            const container = document.getElementById('movieSections');
+            container.innerHTML = '';
 
-    window.onload = setupTopicsAndRender;
-  </script>
+            // 장르 전체 받아오기
+            const allGenres = await fetchAllGenres();
+
+            // 감독/배우는 기존대로
+            const [directors, actors] = await Promise.all([
+                fetchPopularDirectors(1, 5),
+                fetchPopularActors(1)
+            ]);
+
+            // 영화가 실제로 있는 장르만 선택
+            const validGenre = await getValidGenre(allGenres);
+
+            // 토픽 리스트 생성
+            const topicList = [
+                ...directors.map(name => ({ type: 'director', value: name, title: `🎬 ${name} 감독 추천작` })),
+                ...actors.map(name => ({ type: 'actor', value: name, title: `🎭 ${name} 출연작` })),
+            ];
+            if (validGenre) {
+                topicList.push({ type: 'genre', value: validGenre.name, title: `🎞 ${validGenre.name} 장르 추천` });
+            }
+
+            // 장르 이름과 ID 매핑
+            const genreIdMap = {};
+            allGenres.forEach(g => { genreIdMap[g.name] = g.id; });
+
+            // 각 토픽별 영화 섹션 생성 및 데이터 로딩
+            topicList.forEach((topic, index) => {
+                const sectionId = `section-${index}`;
+                const section = document.createElement('section');
+                section.className = 'category-section';
+                section.id = sectionId;
+                section.innerHTML = `<h3 class="category-title">${topic.title}</h3>`;
+                container.appendChild(section);
+                fetchMovies(topic.type, topic.value, movies => renderMovies(sectionId, movies), genreIdMap);
+            });
+        }
+
+        window.onload = setupTopicsAndRender;
+    </script>
 </body>
 </html>

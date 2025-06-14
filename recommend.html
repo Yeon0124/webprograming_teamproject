@@ -125,6 +125,12 @@
             padding: 0.7rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
             text-align: center;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .movie-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
         }
 
         .movie-card img {
@@ -155,26 +161,7 @@
                 <label for="genre">장르</label>
                 <select id="genre" name="genre">
                     <option value="">선택 안 함</option>
-                    <option>액션</option>
-                    <option>로맨스</option>
-                    <option>코미디</option>
-                    <option>드라마</option>
-                    <option>스릴러</option>
-                    <option>SF</option>
-                    <option>애니메이션</option>
-                    <!-- 필요시 추가 -->
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="mood">기분/분위기</label>
-                <select id="mood" name="mood">
-                    <option value="">선택 안 함</option>
-                    <option>감성적인</option>
-                    <option>유쾌한</option>
-                    <option>몰입감 있는</option>
-                    <option>슬픈</option>
-                    <option>무서운</option>
-                    <option>힐링되는</option>
+                    <!-- JS로 TMDB 장르 동적 생성 -->
                 </select>
             </div>
             <div class="form-group">
@@ -191,46 +178,28 @@
                 <select id="year" name="year">
                     <option value="">상관없음</option>
                     <option value="latest">최신 영화</option>
+                    <option value="10s">2010년대 영화</option>
+                    <option value="00s">2000년대 영화</option>
                     <option value="90s">90년대 영화</option>
+                    <option value="80s">80년대 영화</option>
                     <option value="classic">고전 명작</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="country">언어/국가</label>
-                <select id="country" name="country">
+                <label for="language">언어</label>
+                <select id="language" name="language">
                     <option value="">상관없음</option>
-                    <option value="KR">한국 영화</option>
-                    <option value="US">미국 영화</option>
-                    <option value="JP">일본 영화</option>
-                    <option value="FR">프랑스 영화</option>
-                    <option value="GB">영국 영화</option>
-                    <option value="DE">독일 영화</option>
-                    <option value="IT">이탈리아 영화</option>
-                    <option value="ES">스페인 영화</option>
-                    <!-- 필요시 추가 -->
+                    <!-- JS로 TMDB 언어 동적 생성 -->
                 </select>
-            </div>
-            <div class="form-group">
-                <label>관람 대상</label>
-                <div class="form-inline">
-                    <label><input type="checkbox" name="audience" value="혼자" /> 혼자</label>
-                    <label><input type="checkbox" name="audience" value="연인" /> 연인</label>
-                    <label><input type="checkbox" name="audience" value="가족" /> 가족</label>
-                    <label><input type="checkbox" name="audience" value="친구" /> 친구</label>
-                </div>
             </div>
             <div class="form-group">
                 <label>시청 플랫폼</label>
                 <div class="platforms">
-                    <label><input type="checkbox" name="platform" value="넷플릭스" /> 넷플릭스</label>
-                    <label><input type="checkbox" name="platform" value="디즈니+" /> 디즈니+</label>
-                    <label><input type="checkbox" name="platform" value="왓챠" /> 왓챠</label>
-                    <label><input type="checkbox" name="platform" value="쿠팡플레이" /> 쿠팡플레이</label>
+                    <label><input type="checkbox" name="platform" value="8" /> 넷플릭스</label>
+                    <label><input type="checkbox" name="platform" value="337" /> 디즈니+</label>
+                    <label><input type="checkbox" name="platform" value="97" /> 왓챠</label>
+                    <label><input type="checkbox" name="platform" value="356" /> 쿠팡플레이</label>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="recent">최근 본/좋아하는 영화</label>
-                <input type="text" id="recent" name="recent" placeholder="최근 감상/좋아한 영화명 (선택)" />
             </div>
             <button type="submit" class="recommend-btn">추천받기</button>
         </form>
@@ -242,13 +211,101 @@
         <p>&copy; 2025 무비픽 MoviePick</p>
     </footer>
     <script>
-        // 추후 JS로 추천 결과 출력 및 API 연동
-        document.getElementById('recommendForm').onsubmit = function (e) {
+        const API_KEY = 'ae78ea0d67caa2167d072d71ea1a8990';
+
+        // 장르 목록 채우기
+        async function fillGenreOptions() {
+            const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=ko-KR`);
+            const data = await res.json();
+            const select = document.getElementById('genre');
+            data.genres.forEach(genre => {
+                const opt = document.createElement('option');
+                opt.value = genre.id;
+                opt.textContent = genre.name;
+                select.appendChild(opt);
+            });
+        }
+
+        // 언어 목록 채우기
+        async function fillLanguageOptions() {
+            const res = await fetch(`https://api.themoviedb.org/3/configuration/languages?api_key=${API_KEY}`);
+            const data = await res.json();
+            const select = document.getElementById('language');
+            data.forEach(lang => {
+                const opt = document.createElement('option');
+                opt.value = lang.iso_639_1;
+                opt.textContent = lang.english_name + (lang.name ? ` (${lang.name})` : '');
+                select.appendChild(opt);
+            });
+        }
+
+        // 페이지 로드 시 필터 목록 채우기
+        window.onload = function () {
+            fillGenreOptions();
+            fillLanguageOptions();
+        };
+
+        // 추천 폼 제출 시 TMDB API로 영화 추천
+        document.getElementById('recommendForm').onsubmit = async function (e) {
             e.preventDefault();
+            const form = e.target;
+
+            // 장르
+            const genre = form.genre.value;
+            let genreParam = genre ? `&with_genres=${genre}` : '';
+
+            // 언어
+            const language = form.language.value;
+            let languageParam = language ? `&with_original_language=${language}` : '';
+
+            // 관람 시간
+            let runtimeParam = '';
+            if (form.runtime.value === 'short') runtimeParam = '&with_runtime.lte=90';
+            else if (form.runtime.value === 'medium') runtimeParam = '&with_runtime.gte=90&with_runtime.lte=120';
+            else if (form.runtime.value === 'long') runtimeParam = '&with_runtime.gte=120';
+
+            // 연도/시대
+            let yearParam = '';
+            if (form.year.value === 'latest') yearParam = '&primary_release_date.gte=2020-01-01';
+            else if (form.year.value === '10s') yearParam = '&primary_release_date.gte=2010-01-01&primary_release_date.lte=2019-12-31';
+            else if (form.year.value === '00s') yearParam = '&primary_release_date.gte=2000-01-01&primary_release_date.lte=2009-12-31';
+            else if (form.year.value === '90s') yearParam = '&primary_release_date.gte=1990-01-01&primary_release_date.lte=1999-12-31';
+            else if (form.year.value === '80s') yearParam = '&primary_release_date.gte=1980-01-01&primary_release_date.lte=1989-12-31';
+            else if (form.year.value === 'classic') yearParam = '&primary_release_date.lte=1970-12-31';
+
+            // 플랫폼 (여러개 가능)
+            const platforms = Array.from(form.querySelectorAll('input[name="platform"]:checked')).map(el => el.value);
+            let platformParam = '';
+            if (platforms.length > 0) platformParam = `&with_watch_providers=${platforms.join('|')}&watch_region=KR`;
+
+            // 최종 API URL
+            const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=ko-KR${genreParam}${languageParam}${runtimeParam}${yearParam}${platformParam}&sort_by=popularity.desc`;
+
             document.getElementById('results').innerHTML =
-                '<div style="color:#888; padding:2rem; text-align:center;">영화 추천 결과가 여기에 표시됩니다.<br> (API 연동 및 추천 로직 구현 예정)</div>';
+                '<div style="color:#888; padding:2rem; text-align:center;">영화 추천 결과를 불러오는 중...</div>';
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    document.getElementById('results').innerHTML =
+                        `<div class="movie-list">` +
+                        data.results.map(movie => `
+                            <div class="movie-card" onclick="window.location.href='movie.html?id=${movie.id}'">
+                                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path || ''}" alt="포스터" />
+                                <h4>${movie.title}</h4>
+                            </div>
+                        `).join('') +
+                        `</div>`;
+                } else {
+                    document.getElementById('results').innerHTML =
+                        '<div style="color:#888; padding:2rem; text-align:center;">조건에 맞는 영화를 찾을 수 없습니다.</div>';
+                }
+            } catch (err) {
+                document.getElementById('results').innerHTML =
+                    '<div style="color:#888; padding:2rem; text-align:center;">영화 추천 결과를 불러오지 못했습니다.</div>';
+            }
         };
     </script>
 </body>
-
 </html>
