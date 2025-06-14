@@ -130,7 +130,7 @@
         }
 
         .movie-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
         .movie-card img {
@@ -213,6 +213,9 @@
     <script>
         const API_KEY = 'ae78ea0d67caa2167d072d71ea1a8990';
 
+        function goToMovieDetail(movieId) {
+            window.location.href = `movie_detail.html?id=${movieId}`;
+        }
         // 장르 목록 채우기
         async function fillGenreOptions() {
             const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=ko-KR`);
@@ -291,7 +294,7 @@
                     document.getElementById('results').innerHTML =
                         `<div class="movie-list">` +
                         data.results.map(movie => `
-                            <div class="movie-card" onclick="window.location.href='movie.html?id=${movie.id}'">
+                            <div class="movie-card" onclick="goToMovieDetail(${movie.id})">
                                 <img src="https://image.tmdb.org/t/p/w500${movie.poster_path || ''}" alt="포스터" />
                                 <h4>${movie.title}</h4>
                             </div>
@@ -308,4 +311,5 @@
         };
     </script>
 </body>
+
 </html>

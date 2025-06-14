@@ -1,165 +1,274 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>무비픽 - 영화 검색</title>
-    <style>
-        body { margin: 0; font-family: 'Arial', sans-serif; background: #f4f4f4; }
-        header { background: #222; color: #fff; padding: 1rem; text-align: center; }
-        nav {
-            background: #333; display: flex; justify-content: center; gap: 2rem; padding: 0.75rem;
-        }
-        nav a { color: white; text-decoration: none; font-weight: bold; }
-        nav a:hover { text-decoration: underline; }
-        main { max-width: 900px; margin: 2rem auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 2rem; }
-        .search-bar { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
-        .search-bar input[type="text"] { flex: 1; padding: 0.7rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-        .search-bar select { padding: 0.7rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-        .search-bar button { padding: 0.7rem 1.2rem; font-size: 1rem; border: none; border-radius: 4px; background: #222; color: #fff; cursor: pointer; }
-        .search-bar button:hover { background: #444; }
-        .movie-list { display: flex; flex-wrap: wrap; gap: 1.2rem; }
-        .movie-card {
-            background: #fafafa; border: 1px solid #ddd; border-radius: 6px; width: 200px; padding: 0.7rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.06); text-align: center; cursor: pointer; transition: box-shadow 0.2s;
-        }
-        .movie-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-        .movie-card img { width: 100%; border-radius: 4px; }
-        .movie-card h4 { margin: 0.5rem 0 0 0; font-size: 1.1rem; }
-        .movie-card .overview { color: #555; font-size: 0.95rem; margin: 0.7rem 0 0.3rem 0; height: 3.8em; overflow: hidden; }
-        .movie-card .vote { color: #888; font-size: 0.92rem; margin-top: 0.2rem; }
-        .no-results { color: #888; padding: 2rem; text-align: center; }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>🔍 무비픽 - 영화 검색</h1>
-    </header>
-    <nav>
-        <a href="index.html">메인페이지</a>
-        <a href="search.html">영화검색</a>
-        <a href="recommend.html">영화추천</a>
-    </nav>
-    <main>
-        <form class="search-bar" id="searchForm" autocomplete="off">
-            <input type="text" id="searchInput" placeholder="검색어 입력" />
-            <select id="searchType">
-                <option value="title">제목</option>
-                <option value="director">감독</option>
-                <option value="actor">배우</option>
-                <option value="keyword">키워드</option>
-            </select>
-            <button type="submit">검색</button>
-        </form>
-        <div class="movie-list" id="moviesContainer">
-            <!-- 검색 결과 영화 카드가 여기에 표시됩니다 -->
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2025 무비픽 MoviePick</p>
-    </footer>
-    <script>
-        const API_KEY = 'ae78ea0d67caa2167d072d71ea1a8990';
-        const moviesContainer = document.getElementById('moviesContainer');
-        const searchForm = document.getElementById('searchForm');
-        const searchInput = document.getElementById('searchInput');
-        const searchType = document.getElementById('searchType');
 
-        // 영화 카드 생성 함수
-        const createMovieCard = movie => {
-            const { id, title, name, overview, poster_path, vote_average } = movie;
-            const card = document.createElement('div');
-            card.className = 'movie-card';
-            card.onclick = () => window.location.href = `movie.html?id=${id}`;
-            const posterUrl = poster_path
-                ? `https://image.tmdb.org/t/p/w500${poster_path}`
-                : 'https://via.placeholder.com/200x300?text=No+Image';
-            card.innerHTML = `
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>무비픽 - 영화 검색</title>
+	<style>
+		body {
+			margin: 0;
+			font-family: 'Arial', sans-serif;
+			background: #f4f4f4;
+		}
+
+		header {
+			background: #222;
+			color: #fff;
+			padding: 1rem;
+			text-align: center;
+		}
+
+		nav {
+			background: #333;
+			display: flex;
+			justify-content: center;
+			gap: 2rem;
+			padding: 0.75rem;
+		}
+
+		nav a {
+			color: white;
+			text-decoration: none;
+			font-weight: bold;
+		}
+
+		nav a:hover {
+			text-decoration: underline;
+		}
+
+		main {
+			max-width: 900px;
+			margin: 2rem auto;
+			background: #fff;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+			padding: 2rem;
+		}
+
+		.search-bar {
+			display: flex;
+			gap: 0.5rem;
+			margin-bottom: 2rem;
+		}
+
+		.search-bar input[type="text"] {
+			flex: 1;
+			padding: 0.7rem;
+			font-size: 1rem;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+
+		.search-bar select {
+			padding: 0.7rem;
+			font-size: 1rem;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+
+		.search-bar button {
+			padding: 0.7rem 1.2rem;
+			font-size: 1rem;
+			border: none;
+			border-radius: 4px;
+			background: #222;
+			color: #fff;
+			cursor: pointer;
+		}
+
+		.search-bar button:hover {
+			background: #444;
+		}
+
+		.movie-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1.2rem;
+		}
+
+		.movie-card {
+			background: #fafafa;
+			border: 1px solid #ddd;
+			border-radius: 6px;
+			width: 200px;
+			padding: 0.7rem;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+			text-align: center;
+			cursor: pointer;
+			transition: box-shadow 0.2s;
+		}
+
+		.movie-card:hover {
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+		}
+
+		.movie-card img {
+			width: 100%;
+			border-radius: 4px;
+		}
+
+		.movie-card h4 {
+			margin: 0.5rem 0 0 0;
+			font-size: 1.1rem;
+		}
+
+		.movie-card .overview {
+			color: #555;
+			font-size: 0.95rem;
+			margin: 0.7rem 0 0.3rem 0;
+			height: 3.8em;
+			overflow: hidden;
+		}
+
+		.movie-card .vote {
+			color: #888;
+			font-size: 0.92rem;
+			margin-top: 0.2rem;
+		}
+
+		.no-results {
+			color: #888;
+			padding: 2rem;
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>🔍 무비픽 - 영화 검색</h1>
+	</header>
+	<nav>
+		<a href="index.html">메인페이지</a>
+		<a href="search.html">영화검색</a>
+		<a href="recommend.html">영화추천</a>
+	</nav>
+	<main>
+		<form class="search-bar" id="searchForm" autocomplete="off">
+			<input type="text" id="searchInput" placeholder="검색어 입력" />
+			<select id="searchType">
+				<option value="title">제목</option>
+				<option value="director">감독</option>
+				<option value="actor">배우</option>
+				<option value="keyword">키워드</option>
+			</select>
+			<button type="submit">검색</button>
+		</form>
+		<div class="movie-list" id="moviesContainer">
+			<!-- 검색 결과 영화 카드가 여기에 표시됩니다 -->
+		</div>
+	</main>
+	<footer>
+		<p>&copy; 2025 무비픽 MoviePick</p>
+	</footer>
+	<script>
+		const API_KEY = 'ae78ea0d67caa2167d072d71ea1a8990';
+		const moviesContainer = document.getElementById('moviesContainer');
+		const searchForm = document.getElementById('searchForm');
+		const searchInput = document.getElementById('searchInput');
+		const searchType = document.getElementById('searchType');
+
+		function goToMovieDetail(movieId) {
+            window.location.href = `movie_detail.html?id=${movieId}`;
+        }
+
+		// 영화 카드 생성 함수
+		const createMovieCard = movie => {
+			const { id, title, name, overview, poster_path, vote_average } = movie;
+			const card = document.createElement('div');
+			card.className = 'movie-card';
+			card.onclick = () => goToMovieDetail(id);
+			const posterUrl = poster_path
+				? `https://image.tmdb.org/t/p/w500${poster_path}`
+				: 'https://via.placeholder.com/200x300?text=No+Image';
+			card.innerHTML = `
                 <img src="${posterUrl}" alt="포스터" />
                 <h4>${title || name}</h4>
             `;
-            return card;
-        };
+			return card;
+		};
 
-        // 영화 리스트 렌더링
-        const renderMovies = movies => {
-            moviesContainer.innerHTML = '';
-            if (!movies || movies.length === 0) {
-                moviesContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
-                return;
-            }
-            movies.forEach(movie => {
-                const movieCard = createMovieCard(movie);
-                moviesContainer.appendChild(movieCard);
-            });
-        };
+		// 영화 리스트 렌더링
+		const renderMovies = movies => {
+			moviesContainer.innerHTML = '';
+			if (!movies || movies.length === 0) {
+				moviesContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+				return;
+			}
+			movies.forEach(movie => {
+				const movieCard = createMovieCard(movie);
+				moviesContainer.appendChild(movieCard);
+			});
+		};
 
-        // 검색 함수
-        const searchMovies = async (keyword, type) => {
-            if (!keyword || keyword.trim() === '') {
-                moviesContainer.innerHTML = '<div class="no-results">검색어를 입력하세요.</div>';
-                return;
-            }
-            moviesContainer.innerHTML = '<div class="no-results">검색 중...</div>';
-            let results = [];
-            try {
-                if (type === 'title') {
-                    // 제목 검색
-                    const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=ko-KR&query=${encodeURIComponent(keyword)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    results = data.results || [];
-                } else if (type === 'actor' || type === 'director') {
-                    // 인물 검색
-                    const url = `https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&language=ko-KR&query=${encodeURIComponent(keyword)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    if (data.results && data.results.length > 0) {
-                        const personId = data.results[0].id;
-                        const creditsRes = await fetch(`https://api.themoviedb.org/3/person/${personId}/movie_credits?api_key=${API_KEY}&language=ko-KR`);
-                        const creditsData = await creditsRes.json();
-                        if (type === 'actor') {
-                            results = creditsData.cast || [];
-                        } else {
-                            results = (creditsData.crew || []).filter(c => c.job === "Director");
-                        }
-                    }
-                } else if (type === 'keyword') {
-                    // 키워드 검색
-                    const url = `https://api.themoviedb.org/3/search/keyword?api_key=${API_KEY}&query=${encodeURIComponent(keyword)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    if (data.results && data.results.length > 0) {
-                        const keywordId = data.results[0].id;
-                        const moviesRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_keywords=${keywordId}&language=ko-KR`);
-                        const moviesData = await moviesRes.json();
-                        results = moviesData.results || [];
-                    }
-                }
-                renderMovies(results);
-            } catch (e) {
-                moviesContainer.innerHTML = '<div class="no-results">검색에 실패했습니다.</div>';
-            }
-        };
+		// 검색 함수
+		const searchMovies = async (keyword, type) => {
+			if (!keyword || keyword.trim() === '') {
+				moviesContainer.innerHTML = '<div class="no-results">검색어를 입력하세요.</div>';
+				return;
+			}
+			moviesContainer.innerHTML = '<div class="no-results">검색 중...</div>';
+			let results = [];
+			try {
+				if (type === 'title') {
+					// 제목 검색
+					const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=ko-KR&query=${encodeURIComponent(keyword)}`;
+					const res = await fetch(url);
+					const data = await res.json();
+					results = data.results || [];
+				} else if (type === 'actor' || type === 'director') {
+					// 인물 검색
+					const url = `https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&language=ko-KR&query=${encodeURIComponent(keyword)}`;
+					const res = await fetch(url);
+					const data = await res.json();
+					if (data.results && data.results.length > 0) {
+						const personId = data.results[0].id;
+						const creditsRes = await fetch(`https://api.themoviedb.org/3/person/${personId}/movie_credits?api_key=${API_KEY}&language=ko-KR`);
+						const creditsData = await creditsRes.json();
+						if (type === 'actor') {
+							results = creditsData.cast || [];
+						} else {
+							results = (creditsData.crew || []).filter(c => c.job === "Director");
+						}
+					}
+				} else if (type === 'keyword') {
+					// 키워드 검색
+					const url = `https://api.themoviedb.org/3/search/keyword?api_key=${API_KEY}&query=${encodeURIComponent(keyword)}`;
+					const res = await fetch(url);
+					const data = await res.json();
+					if (data.results && data.results.length > 0) {
+						const keywordId = data.results[0].id;
+						const moviesRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_keywords=${keywordId}&language=ko-KR`);
+						const moviesData = await moviesRes.json();
+						results = moviesData.results || [];
+					}
+				}
+				renderMovies(results);
+			} catch (e) {
+				moviesContainer.innerHTML = '<div class="no-results">검색에 실패했습니다.</div>';
+			}
+		};
 
-        // 검색 버튼 클릭/엔터 입력 이벤트
-        searchForm.onsubmit = e => {
-            e.preventDefault();
-            searchMovies(searchInput.value, searchType.value);
-        };
+		// 검색 버튼 클릭/엔터 입력 이벤트
+		searchForm.onsubmit = e => {
+			e.preventDefault();
+			searchMovies(searchInput.value, searchType.value);
+		};
 
-        // 페이지 진입시 인기영화 기본 출력 (선택)
-        window.onload = async () => {
-            moviesContainer.innerHTML = '<div class="no-results">인기 영화를 불러오는 중...</div>';
-            try {
-                const url = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=ko-KR&page=1`;
-                const res = await fetch(url);
-                const data = await res.json();
-                renderMovies(data.results || []);
-            } catch (e) {
-                moviesContainer.innerHTML = '<div class="no-results">인기 영화를 불러오지 못했습니다.</div>';
-            }
-        };
-    </script>
+		// 페이지 진입시 인기영화 기본 출력 (선택)
+		window.onload = async () => {
+			moviesContainer.innerHTML = '<div class="no-results">인기 영화를 불러오는 중...</div>';
+			try {
+				const url = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=ko-KR&page=1`;
+				const res = await fetch(url);
+				const data = await res.json();
+				renderMovies(data.results || []);
+			} catch (e) {
+				moviesContainer.innerHTML = '<div class="no-results">인기 영화를 불러오지 못했습니다.</div>';
+			}
+		};
+	</script>
 </body>
+
 </html>
